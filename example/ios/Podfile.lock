@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - insta360_flutter_plugin (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - insta360_flutter_plugin (from `.symlinks/plugins/insta360_flutter_plugin/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  insta360_flutter_plugin:
+    :path: ".symlinks/plugins/insta360_flutter_plugin/ios"
+
+SPEC CHECKSUMS:
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  insta360_flutter_plugin: fb997af74ee148f827d05128b743786631ce28f5
+
+PODFILE CHECKSUM: 663715e941f9adb426e33bf9376914006f9ea95b
+
+COCOAPODS: 1.11.3

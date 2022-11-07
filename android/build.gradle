@@ -16,6 +16,16 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        maven {
+            url 'http://nexus.arashivision.com:9999/repository/maven-public/'
+            allowInsecureProtocol = true
+            credentials {
+                username = 'deployment'
+                password = 'test123'
+            }
+        }
     }
 }
 
@@ -30,6 +40,22 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
     }
+}
+
+dependencies {
+
+
+    implementation 'com.lzy.net:okgo:3.0.4'
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
+    implementation 'com.xw.repo:bubbleseekbar:3.20-lite'
+    implementation 'com.yanzhenjie.permission:x:2.0.1'
+    implementation 'me.rosuh:AndroidFilePicker:0.6.7-x'
+    implementation 'com.arashivision.sdk:sdkcamera:1.5.0'
+    implementation 'com.arashivision.sdk:sdkmedia:1.5.0'
+
+    implementation 'com.android.support:multidex:1.0.3'
 }

@@ -2,7 +2,6 @@
     package="com.meey.insta360.insta360_flutter_plugin_example">
    <application
         android:label="insta360_flutter_plugin_example"
-        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

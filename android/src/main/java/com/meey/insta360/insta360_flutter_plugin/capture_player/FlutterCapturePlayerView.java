@@ -29,6 +29,7 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
     private PreviewStreamResolution mCurrentResolution;
     private boolean isFisheyeMode = false;
     private boolean isPerspectiveMode = false;
+    private boolean isPlaneMode = false;
     List<PreviewStreamResolution> previewStreamResolutions = new ArrayList<>();
 
     FlutterCapturePlayerView(Context context, BinaryMessenger messenger, int id) {
@@ -131,13 +132,15 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
     }
 
     private void switchPlaneMode(Result result) {
-        restart();
+        isPlaneMode = true;
         isFisheyeMode = false;
         isPerspectiveMode = false;
+        restart();
         result.success(null);
     }
 
     private void switchNormalMode(Result result) {
+        isPlaneMode = false;
         if (!isFisheyeMode || !isPerspectiveMode) {
             restart();
             isFisheyeMode = true;
@@ -150,12 +153,14 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
     }
 
     private void switchFisheyeMode(Result result) {
+        isPlaneMode = false;
         capturePlayer.switchFisheyeMode();
         isFisheyeMode = true;
         result.success(null);
     }
 
     private void switchPerspectiveMode(Result result) {
+        isPlaneMode = false;
         capturePlayer.switchPerspectiveMode();
         isPerspectiveMode = true;
         result.success(null);
@@ -275,6 +280,16 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
                 .setCameraSelfie(InstaCameraManager.getInstance().isCameraSelfie())
                 .setGyroTimeStamp(InstaCameraManager.getInstance().getGyroTimeStamp())
                 .setBatteryType(InstaCameraManager.getInstance().getBatteryType());
+        if (isPlaneMode) {
+            // 平铺模式
+            // Plane Mode
+            builder.setRenderModelType(CaptureParamsBuilder.RENDER_MODE_PLANE_STITCH)
+                    .setScreenRatio(2, 1);
+        }else {
+            // 普通模式
+            // Normal Mode
+            builder.setRenderModelType(CaptureParamsBuilder.RENDER_MODE_AUTO);
+        }
         return builder;
     }
 

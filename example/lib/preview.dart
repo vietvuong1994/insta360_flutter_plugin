@@ -37,6 +37,22 @@ class _PreviewState extends State<Preview> {
     _controller.stop();
   }
 
+  void switchNormalMode() {
+    _controller.switchNormalMode();
+  }
+
+  void switchFisheyeMode() {
+    _controller.switchFisheyeMode();
+  }
+
+  void switchPerspectiveMode() {
+    _controller.switchPerspectiveMode();
+  }
+
+  void switchPlaneMode() {
+    _controller.switchPlaneMode();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -62,29 +78,55 @@ class _PreviewState extends State<Preview> {
                 ),
               ),
               Positioned(
-                  bottom: 20 + MediaQuery.of(context).padding.bottom,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      height: 80,
-                      width: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(99),
-                        color: isPlaying ? Colors.red : Colors.green,
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          isPlaying ? stop() : play();
-                        },
-                        icon: Icon(
-                          isPlaying ? Icons.stop : Icons.play_arrow,
-                          size: 50,
-                          color: Colors.white,
-                        ),
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Wrap(
+                  children: [
+                    ElevatedButton(
+                      onPressed: switchNormalMode,
+                      child: const Text("Normal"),
+                    ),
+                    ElevatedButton(
+                      onPressed: switchFisheyeMode,
+                      child: const Text("Fisheye"),
+                    ),
+                    ElevatedButton(
+                      onPressed: switchPerspectiveMode,
+                      child: const Text("Perspective"),
+                    ),
+                    ElevatedButton(
+                      onPressed: switchPlaneMode,
+                      child: const Text("Plane"),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: 20 + MediaQuery.of(context).padding.bottom,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Container(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(99),
+                      color: isPlaying ? Colors.red : Colors.green,
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        isPlaying ? stop() : play();
+                      },
+                      icon: Icon(
+                        isPlaying ? Icons.stop : Icons.play_arrow,
+                        size: 50,
+                        color: Colors.white,
                       ),
                     ),
-                  )),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

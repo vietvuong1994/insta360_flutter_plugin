@@ -93,4 +93,20 @@ class CapturePlayerController {
   Future<void> stop() async {
     return _channel.invokeMethod('stop');
   }
+
+  Future<void> switchNormalMode() async {
+    return _channel.invokeMethod('switchNormalMode');
+  }
+
+  Future<void> switchFisheyeMode() async {
+    return _channel.invokeMethod('switchFisheyeMode');
+  }
+
+  Future<void> switchPerspectiveMode() async {
+    return _channel.invokeMethod('switchPerspectiveMode');
+  }
+
+  Future<void> switchPlaneMode() async {
+    return _channel.invokeMethod('switchPlaneMode');
+  }
 }

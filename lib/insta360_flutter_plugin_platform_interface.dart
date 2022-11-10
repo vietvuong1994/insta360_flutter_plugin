@@ -2,6 +2,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'insta360_flutter_plugin_method_channel.dart';
 import 'insta_listener_model.dart';
+import 'models/gallery_item_model.dart';
 
 abstract class Insta360FlutterPluginPlatform extends PlatformInterface {
   /// Constructs a Insta360FlutterPluginPlatform.
@@ -30,6 +31,14 @@ abstract class Insta360FlutterPluginPlatform extends PlatformInterface {
 
   Future<String?> disconnect() {
     throw UnimplementedError('disconnect() has not been implemented.');
+  }
+
+  Future<List<GalleryItemModel>?> getGallery() {
+    throw UnimplementedError('getGallery() has not been implemented.');
+  }
+
+  Future<String?> deleteImages(List<String> urls) {
+    throw UnimplementedError('deleteImages() has not been implemented.');
   }
 
   void listener(InstaListenerModel callbacks) {

@@ -6,14 +6,17 @@ import static io.flutter.plugin.common.MethodChannel.Result;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.arashivision.sdkcamera.camera.InstaCameraManager;
+import com.arashivision.sdkcamera.camera.callback.ICaptureStatusListener;
 import com.arashivision.sdkcamera.camera.callback.IPreviewStatusListener;
 import com.arashivision.sdkcamera.camera.resolution.PreviewStreamResolution;
 import com.arashivision.sdkmedia.player.capture.CaptureParamsBuilder;
 import com.arashivision.sdkmedia.player.capture.InstaCapturePlayerView;
 import com.arashivision.sdkmedia.player.config.InstaStabType;
 import com.arashivision.sdkmedia.player.listener.PlayerViewListener;
+import com.meey.insta360.insta360_flutter_plugin.util.TimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,7 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 
-public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler {
+public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler, ICaptureStatusListener {
     private final InstaCapturePlayerView capturePlayer;
     private final MethodChannel methodChannel;
     private PreviewStreamResolution mCurrentResolution;
@@ -77,8 +80,9 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
         };
         IPreviewStatusListener listener = new PreviewStatusListener(callback);
         InstaCameraManager.getInstance().setPreviewStatusChangedListener(listener);
-         methodChannel = new MethodChannel(messenger, "com.meey.insta360/capture_player_" + id);
+        methodChannel = new MethodChannel(messenger, "com.meey.insta360/capture_player_" + id);
         methodChannel.setMethodCallHandler(this);
+        InstaCameraManager.getInstance().setCaptureStatusListener(this);
     }
 
     @Override
@@ -125,10 +129,49 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
             case "getSpinnerStabType":
                 getSpinnerStabType(result);
                 break;
+            case "capture":
+                capture(result);
+                break;
+            case "startRecord":
+                startRecord(result);
+                break;
+            case "stopRecord":
+                stopRecord(result);
+                break;
             default:
                 result.notImplemented();
         }
 
+    }
+
+    private void capture(Result result) {
+        if (checkSdCardEnabled()) {
+            int funcMode = InstaCameraManager.FUNCTION_MODE_CAPTURE_NORMAL;
+            InstaCameraManager.getInstance().setRawToCamera(funcMode, false);
+            InstaCameraManager.getInstance().startNormalCapture(false);
+            result.success(null);
+        } else {
+            result.error("ERROR", "No SD card inserted or Not enough free space", "");
+        }
+    }
+
+    private void startRecord(Result result) {
+        if (checkSdCardEnabled()) {
+            InstaCameraManager.getInstance().startNormalRecord();
+        }
+        result.success(null);
+    }
+
+    private void stopRecord(Result result) {
+        InstaCameraManager.getInstance().stopNormalRecord();
+        result.success(null);
+    }
+
+    private boolean checkSdCardEnabled() {
+        if (!InstaCameraManager.getInstance().isSdCardEnabled()) {
+            return false;
+        }
+        return true;
     }
 
     private void switchPlaneMode(Result result) {
@@ -297,4 +340,34 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
 
     @Override
     public void dispose() {}
+
+    @Override
+    public void onCaptureStarting() {
+        ICaptureStatusListener.super.onCaptureStarting();
+        methodChannel.invokeMethod("capture_state", "start");
+    }
+
+    @Override
+    public void onCaptureWorking() {
+        ICaptureStatusListener.super.onCaptureWorking();
+        methodChannel.invokeMethod("capture_state", "loading");
+    }
+
+    @Override
+    public void onCaptureTimeChanged(long captureTime) {
+        methodChannel.invokeMethod("capture_time", captureTime);
+    }
+
+    @Override
+    public void onCaptureStopping() {
+        ICaptureStatusListener.super.onCaptureStopping();
+        methodChannel.invokeMethod("capture_state", "stop");
+    }
+
+    @Override
+    public void onCaptureFinish(String[] strings) {
+        String images = String.join(",", strings);
+        methodChannel.invokeMethod("capture_finish", images);
+
+    }
 }

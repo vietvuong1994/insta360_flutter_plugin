@@ -75,7 +75,23 @@ class CapturePlayerController {
     _channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'play_state':
-          callbacks.onPlayerStatusChanged!(call.arguments);
+          callbacks.onPlayerStatusChanged(call.arguments);
+          return;
+        case 'capture_state':
+          for (var element in CaptureState.values) {
+            if (call.arguments == element.name) {
+              callbacks.onCaptureStatusChanged(element);
+            }
+          }
+          return;
+        case 'capture_time':
+          callbacks.onCaptureTimeChanged(call.arguments);
+          return;
+        case 'capture_finish':
+          if (call.arguments is String) {
+            List<String> images = call.arguments.split(',');
+            callbacks.onCaptureFinish(images);
+          }
           return;
       }
     });
@@ -92,6 +108,18 @@ class CapturePlayerController {
 
   Future<void> stop() async {
     return _channel.invokeMethod('stop');
+  }
+
+  Future<void> capture() async {
+    return _channel.invokeMethod('capture');
+  }
+
+  Future<void> startRecord() async {
+    return _channel.invokeMethod('startRecord');
+  }
+
+  Future<void> stopRecord() async {
+    return _channel.invokeMethod('stopRecord');
   }
 
   Future<void> switchNormalMode() async {

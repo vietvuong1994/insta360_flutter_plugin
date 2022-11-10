@@ -1,6 +1,6 @@
-
 import 'insta360_flutter_plugin_platform_interface.dart';
 import 'insta_listener_model.dart';
+import 'models/gallery_item_model.dart';
 
 class Insta360FlutterPlugin {
   Future<String?> connectByWifi() {
@@ -9,6 +9,14 @@ class Insta360FlutterPlugin {
 
   Future<String?> closeCamera() {
     return Insta360FlutterPluginPlatform.instance.disconnect();
+  }
+
+  Future<List<GalleryItemModel>?> getGallery() {
+    return Insta360FlutterPluginPlatform.instance.getGallery();
+  }
+
+  Future<String?> deleteImages(List<String> urls) {
+    return Insta360FlutterPluginPlatform.instance.deleteImages(urls);
   }
 
   void listener(InstaListenerModel callbacks) {

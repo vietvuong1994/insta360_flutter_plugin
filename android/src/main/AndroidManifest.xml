@@ -2,7 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.meey.insta360.insta360_flutter_plugin">
-
+    <meta-data android:name="com.myapp.packageName.ClassWithGridleModule" android:value="GlideModule" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application tools:node="replace"
         tools:replace="android:name"

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import 'capture_player_listener.dart';
+import '../models/capture_player_listener.dart';
 
 typedef FlutterCapturePlayerCreatedCallback = void Function(CapturePlayerController controller);
 

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:insta360_flutter_plugin/capture_player.dart';
-import 'package:insta360_flutter_plugin/capture_player_listener.dart';
-import 'package:insta360_flutter_plugin/thumbnail.dart';
+import 'package:insta360_flutter_plugin/models/capture_player_listener.dart';
+import 'package:insta360_flutter_plugin/views/capture_player.dart';
 
-class Preview extends StatefulWidget {
-  const Preview({Key? key}) : super(key: key);
+class Camera extends StatefulWidget {
+  const Camera({Key? key}) : super(key: key);
 
   @override
-  _PreviewState createState() => _PreviewState();
+  _CameraState createState() => _CameraState();
 }
 
-class _PreviewState extends State<Preview> {
+class _CameraState extends State<Camera> {
   late CapturePlayerController _controller;
   bool isPlaying = false;
   bool isLoading = false;
@@ -104,13 +103,18 @@ class _PreviewState extends State<Preview> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        return Future.value(false);
+      },
+      child: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
           leading: IconButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).maybePop();
             },
             icon: const Icon(Icons.arrow_back),
             color: Colors.white,
@@ -122,8 +126,11 @@ class _PreviewState extends State<Preview> {
           child: Stack(
             children: [
               Positioned.fill(
-                child: CapturePlayer(
-                  onViewCreated: onCapturePlayerCreated,
+                child: Container(
+                  color: Colors.black,
+                  child: CapturePlayer(
+                    onViewCreated: onCapturePlayerCreated,
+                  ),
                 ),
               ),
               Positioned(

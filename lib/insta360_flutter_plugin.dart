@@ -1,5 +1,5 @@
 import 'insta360_flutter_plugin_platform_interface.dart';
-import 'insta_listener_model.dart';
+import 'models/insta_listener_model.dart';
 import 'models/gallery_item_model.dart';
 
 class Insta360FlutterPlugin {

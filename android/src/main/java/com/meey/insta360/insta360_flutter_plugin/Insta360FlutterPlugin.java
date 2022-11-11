@@ -1,14 +1,10 @@
 package com.meey.insta360.insta360_flutter_plugin;
 
-import static android.content.ContentValues.TAG;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -21,13 +17,14 @@ import com.arashivision.sdkmedia.work.WorkUtils;
 import com.arashivision.sdkmedia.work.WorkWrapper;
 import com.google.gson.Gson;
 import com.meey.insta360.insta360_flutter_plugin.capture_player.CapturePlayerViewFactory;
+import com.meey.insta360.insta360_flutter_plugin.image_preview_player.ImagePreviewPlayerViewFactory;
 import com.meey.insta360.insta360_flutter_plugin.thumbnail.ThumbnailViewFactory;
 import com.meey.insta360.insta360_flutter_plugin.util.CameraBindNetworkManager;
 import com.meey.insta360.insta360_flutter_plugin.util.NetworkManager;
+import com.meey.insta360.insta360_flutter_plugin.video_preview_player.VideoPreviewPlayerViewFactory;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,11 +37,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 /** Insta360FlutterPlugin */
@@ -72,6 +65,9 @@ public class Insta360FlutterPlugin extends Application implements FlutterPlugin,
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "insta360_flutter_plugin");
     flutterPluginBinding.getPlatformViewRegistry().registerViewFactory("com.meey.insta360/capture_player", new CapturePlayerViewFactory(flutterPluginBinding.getBinaryMessenger()));
     flutterPluginBinding.getPlatformViewRegistry().registerViewFactory("com.meey.insta360/thumbnail", new ThumbnailViewFactory(flutterPluginBinding.getBinaryMessenger()));
+    flutterPluginBinding.getPlatformViewRegistry().registerViewFactory("com.meey.insta360/image_preview_player", new ImagePreviewPlayerViewFactory(flutterPluginBinding.getBinaryMessenger()));
+    flutterPluginBinding.getPlatformViewRegistry().registerViewFactory("com.meey.insta360/video_preview_player", new VideoPreviewPlayerViewFactory(flutterPluginBinding.getBinaryMessenger()));
+
     channel.setMethodCallHandler(this);
     ICameraChangedCallback cameraCallback = new CameraChangedCallback(new CameraListenerCallback () {
       @Override

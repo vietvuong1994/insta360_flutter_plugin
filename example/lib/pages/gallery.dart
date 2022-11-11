@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:insta360_flutter_plugin/insta360_flutter_plugin.dart';
 import 'package:insta360_flutter_plugin/models/gallery_item_model.dart';
-import 'package:insta360_flutter_plugin/thumbnail.dart';
+import 'package:insta360_flutter_plugin/views/thumbnail.dart';
+import 'package:insta360_flutter_plugin_example/pages/video_preview.dart';
+import 'image_preview.dart';
 
 class Gallery extends StatefulWidget {
   const Gallery({Key? key}) : super(key: key);
@@ -64,7 +66,10 @@ class _GalleryState extends State<Gallery> {
           }
           setState(() {});
         } else {
-          // TODO: show detail
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => data.isVideo! ? VideoPreview(data: data) : ImagePreview(data: data)),
+          );
         }
       },
       onLongPress: () {

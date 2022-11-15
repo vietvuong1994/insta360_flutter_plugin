@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -47,11 +48,32 @@ class _ImagePreviewPlayerState extends State<ImagePreviewPlayer> {
           children: [
             Container(
               color: Colors.black,
-              child: AndroidView(
+              child: PlatformViewLink(
                 viewType: viewType,
-                onPlatformViewCreated: _onPlatformViewCreated,
-                creationParams: creationParams,
-                creationParamsCodec: const StandardMessageCodec(),
+                surfaceFactory: (context, controller) {
+                  return AndroidViewSurface(
+                    controller: controller as AndroidViewController,
+                    gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+                    hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+                  );
+                },
+                onCreatePlatformView: (params) {
+                  return PlatformViewsService.initExpensiveAndroidView(
+                    id: params.id,
+                    viewType: viewType,
+                    layoutDirection: TextDirection.ltr,
+                    creationParams: creationParams,
+                    creationParamsCodec: const StandardMessageCodec(),
+                    onFocus: () {
+                      params.onFocusChanged(true);
+                    },
+                  )
+                    ..addOnPlatformViewCreatedListener((int id) {
+                      params.onPlatformViewCreated(id);
+                      _onPlatformViewCreated(params.id);
+                    })
+                    ..create();
+                },
               ),
             ),
             if (previewState == PreviewState.loading)

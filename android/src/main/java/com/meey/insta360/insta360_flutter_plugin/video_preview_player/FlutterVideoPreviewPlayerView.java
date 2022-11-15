@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -41,7 +42,7 @@ public class FlutterVideoPreviewPlayerView implements PlatformView, MethodCallHa
 
     FlutterVideoPreviewPlayerView(Context context, BinaryMessenger messenger, int id, @Nullable Map<String, Object> creationParams) {
         this.creationParams = new PreviewCreateParam(creationParams);
-        mVideoPlayerView= new InstaVideoPlayerView(context);
+        mVideoPlayerView = new InstaVideoPlayerView(context);
         methodChannel = new MethodChannel(messenger, "com.meey.insta360/video_preview_player_" + id);
         methodChannel.setMethodCallHandler(this);
         init();

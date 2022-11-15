@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:insta360_flutter_plugin/insta360_flutter_plugin.dart';
-import 'dart:async';
-import 'package:insta360_flutter_plugin/models/insta_listener_model.dart';
-import 'package:insta360_flutter_plugin_example/pages/gallery.dart';
 import 'package:insta360_flutter_plugin_example/pages/home.dart';
+import 'package:insta360_flutter_plugin_example/services/download_service.dart';
 import 'jumping_dots_progress_indicator.dart';
 
 void main() {
@@ -55,6 +52,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

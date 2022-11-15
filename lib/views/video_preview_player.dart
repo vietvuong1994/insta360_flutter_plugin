@@ -61,9 +61,6 @@ class _VideoPreviewPlayerState extends State<VideoPreviewPlayer> {
                   );
                 },
                 onCreatePlatformView: (params) {
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    _onPlatformViewCreated(params.id);
-                  });
                   return PlatformViewsService.initExpensiveAndroidView(
                     id: params.id,
                     viewType: viewType,
@@ -74,7 +71,10 @@ class _VideoPreviewPlayerState extends State<VideoPreviewPlayer> {
                       params.onFocusChanged(true);
                     },
                   )
-                    ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+                    ..addOnPlatformViewCreatedListener((int id) {
+                      params.onPlatformViewCreated(id);
+                      _onPlatformViewCreated(params.id);
+                    })
                     ..create();
                 },
               ),

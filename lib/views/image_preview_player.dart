@@ -8,13 +8,13 @@ typedef FlutterPreviewCreatedCallback = void Function(ImagePreviewPlayerControll
 typedef WidgetCallback = Widget Function(BuildContext context);
 
 class ImagePreviewPlayer extends StatefulWidget {
-  final FlutterPreviewCreatedCallback onViewCreated;
+  final FlutterPreviewCreatedCallback? onViewCreated;
   final List<String> urls;
   final WidgetCallback? loadingBuilder;
   final WidgetCallback? errorBuilder;
   const ImagePreviewPlayer({
     Key? key,
-    required this.onViewCreated,
+    this.onViewCreated,
     required this.urls,
     this.loadingBuilder,
     this.errorBuilder,
@@ -86,7 +86,7 @@ class _ImagePreviewPlayerState extends State<ImagePreviewPlayer> {
           return;
       }
     });
-    widget.onViewCreated(ImagePreviewPlayerController(channel));
+    widget.onViewCreated?.call(ImagePreviewPlayerController(channel));
   }
 }
 

@@ -93,9 +93,6 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
     @Override
     public void onMethodCall(MethodCall methodCall, Result result) {
         switch (methodCall.method) {
-            case "onInit":
-                onInit(methodCall, result);
-                break;
             case "switchNormalMode":
                 switchNormalMode(result);
                 break;
@@ -113,9 +110,6 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
                 break;
             case "play":
                 play(result);
-                break;
-            case "dispose":
-                dispose(result);
                 break;
             case "stop":
                 stop(result);
@@ -298,21 +292,7 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
         }
     }
 
-    private void dispose(Result result) {
-        InstaCameraManager.getInstance().setPreviewStatusChangedListener(null);
-        InstaCameraManager.getInstance().closePreviewStream();
-        capturePlayer.destroy();
-        this.mCurrentResolution = null;
-        this.previewStreamResolutions.clear();
-        isFisheyeMode = false;
-        isPerspectiveMode = false;
-        result.success(null);
-    }
 
-    private void onInit(MethodCall methodCall, Result result){
-
-        result.success(null);
-    }
 
     private CaptureParamsBuilder createParams() {
         CaptureParamsBuilder builder = new CaptureParamsBuilder()
@@ -339,7 +319,15 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
 
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+        InstaCameraManager.getInstance().setPreviewStatusChangedListener(null);
+        InstaCameraManager.getInstance().closePreviewStream();
+        capturePlayer.destroy();
+        this.mCurrentResolution = null;
+        this.previewStreamResolutions.clear();
+        isFisheyeMode = false;
+        isPerspectiveMode = false;
+    }
 
     @Override
     public void onCaptureStarting() {

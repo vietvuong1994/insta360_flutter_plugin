@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -6,16 +7,19 @@ import 'package:insta360_flutter_plugin/common/enum.dart';
 
 typedef FlutterPreviewCreatedCallback = void Function(VideoPreviewPlayerController controller);
 typedef WidgetCallback = Widget Function(BuildContext context);
+typedef ProgressCallback = Function(int progress);
 
 class VideoPreviewPlayer extends StatefulWidget {
-  final FlutterPreviewCreatedCallback onViewCreated;
+  final FlutterPreviewCreatedCallback? onViewCreated;
   final List<String> urls;
   final WidgetCallback? loadingBuilder;
   final WidgetCallback? errorBuilder;
+  final ProgressCallback? onProgressChanged;
   const VideoPreviewPlayer({
     Key? key,
-    required this.onViewCreated,
+    this.onViewCreated,
     required this.urls,
+    required this.onProgressChanged,
     this.loadingBuilder,
     this.errorBuilder,
   }) : super(key: key);
@@ -47,11 +51,32 @@ class _VideoPreviewPlayerState extends State<VideoPreviewPlayer> {
           children: [
             Container(
               color: Colors.black,
-              child: AndroidView(
+              child: PlatformViewLink(
                 viewType: viewType,
-                onPlatformViewCreated: _onPlatformViewCreated,
-                creationParams: creationParams,
-                creationParamsCodec: const StandardMessageCodec(),
+                surfaceFactory: (context, controller) {
+                  return AndroidViewSurface(
+                    controller: controller as AndroidViewController,
+                    gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+                    hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+                  );
+                },
+                onCreatePlatformView: (params) {
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    _onPlatformViewCreated(params.id);
+                  });
+                  return PlatformViewsService.initExpensiveAndroidView(
+                    id: params.id,
+                    viewType: viewType,
+                    layoutDirection: TextDirection.ltr,
+                    creationParams: creationParams,
+                    creationParamsCodec: const StandardMessageCodec(),
+                    onFocus: () {
+                      params.onFocusChanged(true);
+                    },
+                  )
+                    ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+                    ..create();
+                },
               ),
             ),
             if (previewState == PreviewState.loading)
@@ -84,9 +109,14 @@ class _VideoPreviewPlayerState extends State<VideoPreviewPlayer> {
             previewState = PreviewState.error;
           });
           return;
+        case 'progress_change':
+          if (call.arguments is int) {
+            widget.onProgressChanged?.call(call.arguments);
+          }
+          return;
       }
     });
-    widget.onViewCreated(VideoPreviewPlayerController(channel));
+    widget.onViewCreated?.call(VideoPreviewPlayerController(channel));
   }
 }
 

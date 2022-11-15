@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:insta360_flutter_plugin/models/capture_player_listener.dart';
+import 'package:insta360_flutter_plugin/common/enum.dart';
 import 'package:insta360_flutter_plugin/views/capture_player.dart';
 
 class Camera extends StatefulWidget {
@@ -18,37 +18,7 @@ class _CameraState extends State<Camera> {
 
   onCapturePlayerCreated(CapturePlayerController controller) {
     _controller = controller;
-    CapturePlayerListenerModel listener = CapturePlayerListenerModel(
-      onPlayerStatusChanged: (bool playState) {
-        setState(() {
-          isPlaying = playState;
-        });
-      },
-      onCaptureStatusChanged: (CaptureState captureState) {
-        if (captureState == CaptureState.stop) {
-          recordingTime = "00:00:00";
-        }
-      },
-      onCaptureTimeChanged: (int time) {
-        String timeFormat = getDurationTime(time);
-        if (recordingTime != timeFormat) {
-          setState(() {
-            recordingTime = timeFormat;
-          });
-        }
-      },
-      onCaptureFinish: (List<String> images) {
-        print("=====Capture finish: ${images.join(",")}");
-      },
-    );
-    _controller.onInit(listener);
     play();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   String getDurationTime(int time) {
@@ -130,6 +100,27 @@ class _CameraState extends State<Camera> {
                   color: Colors.black,
                   child: CapturePlayer(
                     onViewCreated: onCapturePlayerCreated,
+                    onPlayerStatusChanged: (bool playState) {
+                      setState(() {
+                        isPlaying = playState;
+                      });
+                    },
+                    onCaptureStatusChanged: (CaptureState captureState) {
+                      if (captureState == CaptureState.stop) {
+                        recordingTime = "00:00:00";
+                      }
+                    },
+                    onCaptureTimeChanged: (int time) {
+                      String timeFormat = getDurationTime(time);
+                      if (recordingTime != timeFormat) {
+                        setState(() {
+                          recordingTime = timeFormat;
+                        });
+                      }
+                    },
+                    onCaptureFinish: (List<String> images) {
+                      print("=====Capture finish: ${images.join(",")}");
+                    },
                   ),
                 ),
               ),

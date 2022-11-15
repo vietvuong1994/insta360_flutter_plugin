@@ -8,10 +8,16 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
+
 import com.arashivision.sdkmedia.work.WorkWrapper;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.meey.insta360.insta360_flutter_plugin.glide.GlideApp;
+import com.meey.insta360.insta360_flutter_plugin.models.PreviewCreateParam;
+import com.meey.insta360.insta360_flutter_plugin.models.ThumbnailCreateParam;
+
+import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -22,11 +28,14 @@ public class FlutterThumbnailPlayerView implements PlatformView, MethodCallHandl
     private final ImageView view;
     private final MethodChannel methodChannel;
     private final Context context;
+    private ThumbnailCreateParam creationParams;
 
 
-    FlutterThumbnailPlayerView(Context context, BinaryMessenger messenger, int id) {
+    FlutterThumbnailPlayerView(Context context, BinaryMessenger messenger, int id, @Nullable Map<String, Object> creationParams) {
         this.context = context;
-        view = new ImageView(context);
+        this.view = new ImageView(context);
+        this.creationParams = new ThumbnailCreateParam(creationParams);
+        bindUrlsToView(this.creationParams.urls);
         methodChannel = new MethodChannel(messenger, "com.meey.insta360/thumbnail_" + id);
         methodChannel.setMethodCallHandler(this);
     }
@@ -53,8 +62,12 @@ public class FlutterThumbnailPlayerView implements PlatformView, MethodCallHandl
     }
 
     private void setUrls(MethodCall methodCall, Result result){
-        String images = (String) methodCall.arguments;
-        String[] imageLinks = images.split(",");
+        String[] images = (String[]) methodCall.arguments;
+        bindUrlsToView(images);
+        result.success(null);
+    }
+
+    private void bindUrlsToView(String[] imageLinks){
         WorkWrapper workWrapper = new WorkWrapper(imageLinks);
         GlideApp.with(context)
                 .load(workWrapper)
@@ -62,6 +75,5 @@ public class FlutterThumbnailPlayerView implements PlatformView, MethodCallHandl
                 .placeholder(new ColorDrawable(Color.GRAY))
                 .priority(Priority.HIGH)
                 .into(view);
-        result.success(null);
     }
 }

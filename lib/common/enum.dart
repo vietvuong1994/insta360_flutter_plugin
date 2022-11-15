@@ -3,3 +3,9 @@ enum PreviewState {
   error,
   loading,
 }
+
+enum CaptureState {
+  start,
+  loading,
+  stop,
+}

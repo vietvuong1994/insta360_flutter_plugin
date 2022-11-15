@@ -24,6 +24,7 @@ import com.bumptech.glide.Priority;
 import com.meey.insta360.insta360_flutter_plugin.glide.GlideApp;
 import com.meey.insta360.insta360_flutter_plugin.models.PreviewCreateParam;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -72,10 +73,10 @@ public class FlutterVideoPreviewPlayerView implements PlatformView, MethodCallHa
         mVideoPlayerView.setVideoStatusListener(new VideoStatusListener() {
             @Override
             public void onProgressChanged(long position, long length) {
-//                mSeekBar.setMax((int) length);
-//                mSeekBar.setProgress((int) position);
-//                mTvCurrent.setText(TimeFormat.durationFormat(position));
-//                mTvTotal.setText(TimeFormat.durationFormat(length));
+//                Map<String, Long> map = new HashMap<>();
+//                map.put("total", length);
+//                map.put("progress", position);
+                methodChannel.invokeMethod("progress_change", position);
             }
 
             @Override
@@ -146,7 +147,7 @@ public class FlutterVideoPreviewPlayerView implements PlatformView, MethodCallHa
     }
 
     private void seekTo(MethodCall methodCall, Result result){
-        long duration = (long) methodCall.arguments;
+        int duration = (int) methodCall.arguments;
         mVideoPlayerView.seekTo(duration);
         result.success(null);
     }

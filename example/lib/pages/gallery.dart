@@ -85,11 +85,7 @@ class _GalleryState extends State<Gallery> {
             padding: const EdgeInsets.all(16),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(99),
-              child: ThumbnailView(
-                onViewCreated: (ThumbnailViewController controller) {
-                  controller.setUrls(data.urls!);
-                },
-              ),
+              child: ThumbnailView(urls: data.urls!),
             ),
           ),
           if (showCheck)

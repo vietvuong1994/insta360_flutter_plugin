@@ -3,14 +3,25 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-
-import '../models/capture_player_listener.dart';
+import '../common/enum.dart';
 
 typedef FlutterCapturePlayerCreatedCallback = void Function(CapturePlayerController controller);
 
 class CapturePlayer extends StatelessWidget {
-  final FlutterCapturePlayerCreatedCallback onViewCreated;
-  const CapturePlayer({Key? key, required this.onViewCreated}) : super(key: key);
+  final FlutterCapturePlayerCreatedCallback? onViewCreated;
+  final Function(bool)? onPlayerStatusChanged;
+  final Function(CaptureState)? onCaptureStatusChanged;
+  final Function(int)? onCaptureTimeChanged;
+  final Function(List<String>)? onCaptureFinish;
+
+  const CapturePlayer({
+    Key? key,
+    this.onViewCreated,
+    this.onPlayerStatusChanged,
+    this.onCaptureStatusChanged,
+    this.onCaptureTimeChanged,
+    this.onCaptureFinish,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     const String viewType = 'com.meey.insta360/capture_player';
@@ -62,79 +73,73 @@ class CapturePlayer extends StatelessWidget {
   }
 
   // Callback method when platform view is created
-  void _onPlatformViewCreated(int id) => onViewCreated(CapturePlayerController._(id));
-}
-
-// CapturePlayer Controller class to set url etc
-class CapturePlayerController {
-  CapturePlayerController._(int id) : _channel = MethodChannel('com.meey.insta360/capture_player_$id');
-
-  final MethodChannel _channel;
-
-  Future<void> onInit(CapturePlayerListenerModel callbacks) async {
-    _channel.setMethodCallHandler((MethodCall call) async {
+  void _onPlatformViewCreated(int id) {
+    MethodChannel channel = MethodChannel('com.meey.insta360/capture_player_$id');
+    channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'play_state':
-          callbacks.onPlayerStatusChanged(call.arguments);
+          onPlayerStatusChanged?.call(call.arguments);
           return;
         case 'capture_state':
           for (var element in CaptureState.values) {
             if (call.arguments == element.name) {
-              callbacks.onCaptureStatusChanged(element);
+              onCaptureStatusChanged?.call(element);
             }
           }
           return;
         case 'capture_time':
-          callbacks.onCaptureTimeChanged(call.arguments);
+          onCaptureTimeChanged?.call(call.arguments);
           return;
         case 'capture_finish':
           if (call.arguments is String) {
             List<String> images = call.arguments.split(',');
-            callbacks.onCaptureFinish(images);
+            onCaptureFinish?.call(images);
           }
           return;
       }
     });
-    return _channel.invokeMethod('onInit');
+    onViewCreated?.call(CapturePlayerController(channel));
   }
+}
 
-  Future<void> dispose() async {
-    return _channel.invokeMethod('dispose');
-  }
+// CapturePlayer Controller class to set url etc
+class CapturePlayerController {
+  MethodChannel channel;
+  CapturePlayerController(this.channel);
 
   Future<void> play() async {
-    return _channel.invokeMethod('play');
+    return channel.invokeMethod('play');
   }
 
   Future<void> stop() async {
-    return _channel.invokeMethod('stop');
+    return channel.invokeMethod('stop');
   }
 
   Future<void> capture() async {
-    return _channel.invokeMethod('capture');
+    return channel.invokeMethod('capture');
   }
 
   Future<void> startRecord() async {
-    return _channel.invokeMethod('startRecord');
+    return channel.invokeMethod('startRecord');
   }
 
   Future<void> stopRecord() async {
-    return _channel.invokeMethod('stopRecord');
+    return channel.invokeMethod('stopRecord');
   }
 
   Future<void> switchNormalMode() async {
-    return _channel.invokeMethod('switchNormalMode');
+    return channel.invokeMethod('switchNormalMode');
   }
 
   Future<void> switchFisheyeMode() async {
-    return _channel.invokeMethod('switchFisheyeMode');
+    return channel.invokeMethod('switchFisheyeMode');
   }
 
   Future<void> switchPerspectiveMode() async {
-    return _channel.invokeMethod('switchPerspectiveMode');
+    return channel.invokeMethod('switchPerspectiveMode');
   }
 
   Future<void> switchPlaneMode() async {
-    return _channel.invokeMethod('switchPlaneMode');
+    return channel.invokeMethod('switchPlaneMode');
   }
 }

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:insta360_flutter_plugin/insta360_flutter_plugin.dart';
 import 'package:insta360_flutter_plugin/models/insta_listener_model.dart';
-
+import 'package:wifi_scan/wifi_scan.dart';
+import 'package:wifi_iot/wifi_iot.dart';
 import 'camera/preload_camera.dart';
 import 'gallery.dart';
 
@@ -26,6 +29,7 @@ class _HomeState extends State<Home> {
   Future<void> initPlatformState() async {
     InstaListenerModel callbacks = InstaListenerModel(onCameraStatusChanged: (bool enabled) {
       setState(() {
+        isHasConnect = enabled;
         connected = enabled;
       });
       if (enabled) {
@@ -33,14 +37,42 @@ class _HomeState extends State<Home> {
       }
     }, onCameraConnectError: (int error) {
       setState(() {
+        isHasConnect = false;
         connected = false;
       });
     });
     _insta360PluginFlutterPlugin.listener(callbacks);
   }
 
-  connectWifi() {
-    _insta360PluginFlutterPlugin.connectByWifi();
+  connectWifi()async {
+    _startScan();
+
+  }
+
+  List<WiFiAccessPoint> accessPoints = [];
+  StreamSubscription<List<WiFiAccessPoint>>? subscription;
+  bool isHasConnect = false;
+
+  void _startScan() async {
+    final can = await WiFiScan.instance.canStartScan(askPermissions: true);
+    switch (can) {
+      case CanStartScan.yes:
+        final isScanning = await WiFiScan.instance.startScan();
+        subscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+          for (var element in results) {
+            print(element.ssid);
+            print(element.bssid);
+            print('----------');
+            if (element.ssid.contains('ONE X2') && !isHasConnect) {
+              isHasConnect = true;
+              WiFiForIoTPlugin.connect(element.ssid, bssid: element.bssid, security: NetworkSecurity.WPA, password: '88888888').then((value) {
+                _insta360PluginFlutterPlugin.connectByWifi();
+              });
+            }
+          }
+        });
+        break;
+    }
   }
 
   disconnectWifi() {

@@ -38,23 +38,23 @@ class MethodChannelInsta360FlutterPlugin extends Insta360FlutterPluginPlatform {
     return result;
   }
 
-  @override
-  Future<List<GalleryItemModel>?> getGallery() async {
-    final result = await methodChannel.invokeMethod<String>('getGallery');
-    if (result != null) {
-      var rsJson = json.decode(result);
-      if (rsJson is List) {
-        List<GalleryItemModel> data = rsJson.map((e) {
-          GalleryItemModel item = GalleryItemModel.fromJson(e);
-          return item;
-        }).toList();
-        return data;
-      } else {
-        return null;
-      }
-    }
-    return null;
-  }
+  // @override
+  // Future<List<GalleryItemModel>?> getGallery() async {
+  //   final result = await methodChannel.invokeMethod<String>('getGallery');
+  //   if (result != null) {
+  //     var rsJson = json.decode(result);
+  //     if (rsJson is List) {
+  //       List<GalleryItemModel> data = rsJson.map((e) {
+  //         GalleryItemModel item = GalleryItemModel.fromJson(e);
+  //         return item;
+  //       }).toList();
+  //       return data;
+  //     } else {
+  //       return null;
+  //     }
+  //   }
+  //   return null;
+  // }
 
   @override
   Future<String?> deleteImages(List<String> urls) async {

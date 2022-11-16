@@ -26,7 +26,7 @@ class _GalleryState extends State<Gallery> {
   }
 
   getImages() async {
-    images = await instaPlugin.getGallery() ?? [];
+    // images = await instaPlugin.getGallery() ?? [];
     setState(() {});
   }
 

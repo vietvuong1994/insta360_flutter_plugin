@@ -11,9 +11,9 @@ class Insta360FlutterPlugin {
     return Insta360FlutterPluginPlatform.instance.disconnect();
   }
 
-  Future<List<GalleryItemModel>?> getGallery() {
-    return Insta360FlutterPluginPlatform.instance.getGallery();
-  }
+  // Future<List<GalleryItemModel>?> getGallery() {
+  //   return Insta360FlutterPluginPlatform.instance.getGallery();
+  // }
 
   Future<String?> deleteImages(List<String> urls) {
     return Insta360FlutterPluginPlatform.instance.deleteImages(urls);

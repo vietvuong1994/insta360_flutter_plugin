@@ -28,9 +28,6 @@ class _HomeState extends State<Home> {
       setState(() {
         connected = enabled;
       });
-      if (enabled) {
-        _insta360PluginFlutterPlugin.getGallery();
-      }
     }, onCameraConnectError: (int error) {
       setState(() {
         connected = false;
@@ -96,14 +93,14 @@ class _HomeState extends State<Home> {
                   : null,
               child: const Text('Preview'),
             ),
-            ElevatedButton(
-              onPressed: connected
-                  ? () {
-                      navToGallery(context);
-                    }
-                  : null,
-              child: const Text('Gallery'),
-            ),
+            // ElevatedButton(
+            //   onPressed: connected
+            //       ? () {
+            //           navToGallery(context);
+            //         }
+            //       : null,
+            //   child: const Text('Gallery'),
+            // ),
           ],
         ),
       ),

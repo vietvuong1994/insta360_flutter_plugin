@@ -33,15 +33,15 @@
 
 @property (nonatomic, strong) INSCameraMediaSession *mediaSession;
 
+@property (nonatomic, strong) INSCameraStorageStatus *storageState;
+
+@property (nonatomic, assign) INSVideoEncode videoEncode;
+
 @end
 
 @implementation CapturePlayer {
     INSRenderView *_capturePlayerView;
     FlutterMethodChannel* _channel;
-}
-
-- (void) init: (FlutterMethodCall*)call withResult: (FlutterResult) result{
-    
 }
 
 
@@ -55,6 +55,103 @@
     [_mediaSession unplug:_previewPlayer];
     _previewPlayer = nil;
     [self updateMediaSession];
+}
+
+- (void)capture: (FlutterMethodCall*)call withResult: (FlutterResult) result{
+    INSExtraInfo *extraInfo = [[INSExtraInfo alloc] init];
+    INSTakePictureOptions *options = [[INSTakePictureOptions alloc] initWithExtraInfo:extraInfo];
+    [[INSCameraManager sharedManager].commandManager takePictureWithOptions:options completion:^(NSError * _Nullable error, INSCameraPhotoInfo * _Nullable photoInfo) {
+        NSLog(@"take picture uri: %@, error: %@",photoInfo.uri,error);
+        if(error != nil){
+            result([FlutterError errorWithCode:@"ERROR"
+                                       message:error.description
+                                       details:error]);
+        }else{
+            result(photoInfo.uri);
+        }
+    }];
+}
+
+- (void)startRecord: (FlutterMethodCall*)call withResult: (FlutterResult) result{
+    __weak typeof(self)weakSelf = self;
+    [weakSelf.mediaSession stopRunningWithCompletion:^(NSError * _Nullable error) {
+        [weakSelf runMediaSession:result];
+    }];
+    
+    if (weakSelf.storageState.cardState == INSCameraCardStateNormal) {
+        INSCaptureOptions *options = [[INSCaptureOptions alloc] init];
+        [[INSCameraManager sharedManager].commandManager startCaptureWithOptions:options completion:^(NSError * _Nullable error) {
+            if (error) {
+                result([FlutterError errorWithCode:@"ERROR"
+                                           message:error.description
+                                           details:error]);
+            }
+        }];
+    }
+    else {
+        result([FlutterError errorWithCode:@"ERROR"
+                                   message:@"No SDCard"
+                                   details:@"No SDCard"]);
+    }
+}
+
+- (void)stopRecord: (FlutterMethodCall*)call withResult: (FlutterResult) result{
+    __weak typeof(self)weakSelf = self;
+    [weakSelf.mediaSession stopRunningWithCompletion:^(NSError * _Nullable error) {
+        [weakSelf runMediaSession:result];
+    }];
+    
+    if (weakSelf.storageState.cardState == INSCameraCardStateNormal) {
+        INSCaptureOptions *options = [[INSCaptureOptions alloc] init];
+        [[INSCameraManager sharedManager].commandManager stopCaptureWithOptions:options completion:^(NSError * _Nullable error, INSCameraVideoInfo * _Nullable videoInfo) {
+            NSLog(@"video urls: %@",[INSMediaUtil retrievePanoFileURIsWithURI:videoInfo.uri]);
+            if(error != nil){
+                result([FlutterError errorWithCode:@"ERROR"
+                                           message:error.description
+                                           details:error]);
+            }else{
+                result(videoInfo.uri);
+            }
+        }];
+    }
+    else {
+        result([FlutterError errorWithCode:@"ERROR"
+                                   message:@"No SDCard"
+                                   details:@"No SDCard"]);
+    }
+}
+
+- (void)runMediaSession: (FlutterResult) result {
+    if ([INSCameraManager sharedManager].cameraState != INSCameraStateConnected) {
+        return ;
+    }
+    
+    __weak typeof(self)weakSelf = self;
+    if (_mediaSession.running) {
+        self.view.userInteractionEnabled = NO;
+        [_mediaSession commitChangesWithCompletion:^(NSError * _Nullable error) {
+            NSLog(@"commitChanges media session with error: %@",error);
+            weakSelf.view.userInteractionEnabled = YES;
+            if (error) {
+                result([FlutterError errorWithCode:@"ERROR"
+                                           message:error.description
+                                           details:error]);
+            }
+        }];
+    }
+    else {
+        self.view.userInteractionEnabled = NO;
+        [_mediaSession startRunningWithCompletion:^(NSError * _Nullable error) {
+            NSLog(@"start running media session with error: %@",error);
+            weakSelf.view.userInteractionEnabled = YES;
+            if (error) {
+                result([FlutterError errorWithCode:@"ERROR"
+                                           message:error.description
+                                           details:error]);
+                [weakSelf.previewPlayer playWithSmoothBuffer:NO];
+            }
+        }];
+    }
 }
 
 - (void)cameraDidConnected:(NSNotification *)notification {
@@ -75,7 +172,6 @@
     [_mediaSession stopRunningWithCompletion:nil];
     [_previewPlayer.renderView destroyRender];
     [EAGLContext setCurrentContext:[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3]];
-    //    [[INSCameraManager sharedManager] shutdown];
 }
 
 - (void)updateMediaSession {
@@ -135,17 +231,76 @@
         // This method is invoked on the UI thread.
         if ([@"dispose" isEqualToString:call.method]) {
             [weakSelf dispose:call withResult:result];
-        } else if ([@"onInit" isEqualToString:call.method]) {
-            [weakSelf init:call withResult:result];
         } else if ([@"play" isEqualToString:call.method]) {
             [weakSelf play:call withResult:result];
         } else if ([@"stop" isEqualToString:call.method]) {
             [weakSelf stop:call withResult:result];
+        } else if ([@"capture" isEqualToString:call.method]) {
+            [weakSelf capture:call withResult:result];
+        } else if ([@"startRecord" isEqualToString:call.method]) {
+            [weakSelf startRecord:call withResult:result];
+        } else if ([@"stopRecord" isEqualToString:call.method]) {
+            [weakSelf stopRecord:call withResult:result];
         } else {
             result(FlutterMethodNotImplemented);
         }
     }];
+    
+//    if ([INSCameraManager sharedManager].currentCamera) {
+//        [self fetchOptionsWithCompletion:^{
+//            [weakSelf updateConfiguration];
+//            [weakSelf runMediaSession];
+//        }];
+//    }
     return self;
+}
+
+- (void)fetchOptionsWithCompletion:(nullable void (^)(void))completion {
+    __weak typeof(self)weakSelf = self;
+    NSArray *optionTypes = @[@(INSCameraOptionsTypeStorageState),@(INSCameraOptionsTypeVideoEncode)];
+    [[INSCameraManager sharedManager].commandManager getOptionsWithTypes:optionTypes completion:^(NSError * _Nullable error, INSCameraOptions * _Nullable options, NSArray<NSNumber *> * _Nullable successTypes) {
+        if (!options) {
+            // [weakSelf showAlertWith:@"Get options" message:error.description];
+            completion();
+            return ;
+        }
+        weakSelf.storageState = options.storageStatus;
+        weakSelf.videoEncode = options.videoEncode;
+        completion();
+    }];
+}
+
+- (void)updateConfiguration {
+
+}
+
+- (void)runMediaSession {
+    if ([INSCameraManager sharedManager].cameraState != INSCameraStateConnected) {
+        return ;
+    }
+    
+    __weak typeof(self)weakSelf = self;
+    if (_mediaSession.running) {
+        self.view.userInteractionEnabled = NO;
+        [_mediaSession commitChangesWithCompletion:^(NSError * _Nullable error) {
+            NSLog(@"commitChanges media session with error: %@",error);
+            weakSelf.view.userInteractionEnabled = YES;
+            if (error) {
+//                [weakSelf showAlertWith:@"commitChanges media failed" message:error.description];
+            }
+        }];
+    }
+    else {
+        self.view.userInteractionEnabled = NO;
+        [_mediaSession startRunningWithCompletion:^(NSError * _Nullable error) {
+            NSLog(@"start running media session with error: %@",error);
+            weakSelf.view.userInteractionEnabled = YES;
+            if (error) {
+//                [weakSelf showAlertWith:@"start media failed" message:error.description];
+                [weakSelf.previewPlayer playWithSmoothBuffer:NO];
+            }
+        }];
+    }
 }
 
 

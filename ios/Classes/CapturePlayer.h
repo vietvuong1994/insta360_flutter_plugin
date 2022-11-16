@@ -17,8 +17,6 @@
 
 - (void) dispose: (FlutterMethodCall*)call withResult: (FlutterResult) result;
 
-- (void) init: (FlutterMethodCall*)call withResult: (FlutterResult) result;
-
 - (void) play: (FlutterMethodCall*)call withResult: (FlutterResult) result;
 
 - (void) stop: (FlutterMethodCall*)call withResult: (FlutterResult) result;

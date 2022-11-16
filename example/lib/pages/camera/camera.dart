@@ -130,22 +130,22 @@ class _CameraState extends State<Camera> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ElevatedButton(
-                      onPressed: switchNormalMode,
-                      child: const Text("Normal"),
-                    ),
-                    ElevatedButton(
-                      onPressed: switchFisheyeMode,
-                      child: const Text("Fisheye"),
-                    ),
-                    ElevatedButton(
-                      onPressed: switchPerspectiveMode,
-                      child: const Text("Perspective"),
-                    ),
-                    ElevatedButton(
-                      onPressed: switchPlaneMode,
-                      child: const Text("Plane"),
-                    ),
+                    // ElevatedButton(
+                    //   onPressed: switchNormalMode,
+                    //   child: const Text("Normal"),
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: switchFisheyeMode,
+                    //   child: const Text("Fisheye"),
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: switchPerspectiveMode,
+                    //   child: const Text("Perspective"),
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: switchPlaneMode,
+                    //   child: const Text("Plane"),
+                    // ),
                     if (!isRecording)
                       ElevatedButton(
                         onPressed: capture,

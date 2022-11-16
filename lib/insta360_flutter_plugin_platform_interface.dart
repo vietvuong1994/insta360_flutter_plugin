@@ -33,9 +33,9 @@ abstract class Insta360FlutterPluginPlatform extends PlatformInterface {
     throw UnimplementedError('disconnect() has not been implemented.');
   }
 
-  Future<List<GalleryItemModel>?> getGallery() {
-    throw UnimplementedError('getGallery() has not been implemented.');
-  }
+  // Future<List<GalleryItemModel>?> getGallery() {
+  //   throw UnimplementedError('getGallery() has not been implemented.');
+  // }
 
   Future<String?> deleteImages(List<String> urls) {
     throw UnimplementedError('deleteImages() has not been implemented.');

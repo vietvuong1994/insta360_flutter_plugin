@@ -1,7 +1,12 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:insta360_flutter_plugin/common/enum.dart';
+import 'package:insta360_flutter_plugin/models/gallery_item_model.dart';
 import 'package:insta360_flutter_plugin/views/capture_player.dart';
 import 'package:insta360_flutter_plugin_example/common/enums.dart';
+
+import '../image_preview.dart';
+import '../video_preview.dart';
 
 class Camera extends StatefulWidget {
   const Camera({Key? key}) : super(key: key);
@@ -17,6 +22,12 @@ class _CameraState extends State<Camera> {
   bool isRecording = false;
   String recordingTime = "00:00:00";
   CameraType cameraType = CameraType.capture;
+
+  @override
+  dispose(){
+    _controller.dispose();
+    super.dispose();
+  }
 
   onCapturePlayerCreated(CapturePlayerController controller) {
     _controller = controller;
@@ -161,6 +172,34 @@ class _CameraState extends State<Camera> {
     );
   }
 
+  onCaptureFinish(List<String> urls) {
+    print("=====Capture finish: ${urls.join(",")}");
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      title: 'Thành công',
+      desc:  "${cameraType.title} đã được lưu trữ trên thiết bị Insta!",
+      btnOkText: "Xem",
+      btnOkOnPress: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context){
+            GalleryItemModel data = GalleryItemModel(urls: urls);
+            if(cameraType == CameraType.record ){
+              data.isVideo = true;
+              return VideoPreview(data: data);
+            }else{
+              data.isVideo = false;
+              return ImagePreview(data: data);
+            }
+          }),
+        );
+      },
+    ).show();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -174,6 +213,16 @@ class _CameraState extends State<Camera> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          centerTitle: true,
+          title: (cameraType == CameraType.record) ?  AnimatedContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                color: isRecording ? Colors.red : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              duration: const Duration(milliseconds: 300),
+              child: Text(recordingTime),
+          ) : null,
           leading: IconButton(
             onPressed: () {
               Navigator.of(context).maybePop();
@@ -210,9 +259,7 @@ class _CameraState extends State<Camera> {
                         });
                       }
                     },
-                    onCaptureFinish: (List<String> urls) {
-                      print("=====Capture finish: ${urls.join(",")}");
-                    },
+                    onCaptureFinish: onCaptureFinish,
                   ),
                 ),
               ),
@@ -231,6 +278,7 @@ class _CameraState extends State<Camera> {
                   ],
                 ),
               ),
+
               Positioned(
                 bottom: 20 + MediaQuery.of(context).padding.bottom,
                 left: 0,

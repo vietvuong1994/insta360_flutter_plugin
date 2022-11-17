@@ -37,6 +37,10 @@
 
 @property (nonatomic, assign) INSVideoEncode videoEncode;
 
+@property (strong, nonatomic) NSTimer *timer;
+
+@property int currMillisecond;
+
 @end
 
 @implementation CapturePlayer {
@@ -67,7 +71,10 @@
                                        message:error.description
                                        details:error]);
         }else{
-            result(photoInfo.uri);
+            NSString *format = @"http://192.168.42.1%@";
+            NSString *urlString = [NSString stringWithFormat:format, photoInfo.uri];
+            [self->_channel invokeMethod:@"capture_finish" arguments: urlString];
+            result(nil);
         }
     }];
 }
@@ -85,6 +92,14 @@
                 result([FlutterError errorWithCode:@"ERROR"
                                            message:error.description
                                            details:error]);
+            }else{
+                [self->_channel invokeMethod:@"capture_state" arguments: @"start"];
+                self->_currMillisecond = 0;
+                self->_timer = [NSTimer scheduledTimerWithTimeInterval: 0.1
+                                     target: self
+                                     selector: @selector(onTick:)
+                                     userInfo: nil
+                                     repeats: YES];
             }
         }];
     }
@@ -95,9 +110,19 @@
     }
 }
 
+-(void)onTick:(NSTimer *)timer {
+    self->_currMillisecond += 100;
+    NSNumber *currentMillisecond = [NSNumber numberWithInt: self->_currMillisecond];
+    [self->_channel invokeMethod:@"capture_time" arguments: currentMillisecond];
+    NSLog(@"%i  milisecond", self->_currMillisecond);
+}
+
 - (void)stopRecord: (FlutterMethodCall*)call withResult: (FlutterResult) result{
     __weak typeof(self)weakSelf = self;
     [weakSelf.mediaSession stopRunningWithCompletion:^(NSError * _Nullable error) {
+        [self->_channel invokeMethod:@"capture_state" arguments: @"stop"];
+        [self->_timer invalidate];
+        self->_timer = nil;
         [weakSelf runMediaSession:result];
     }];
     
@@ -105,12 +130,16 @@
         INSCaptureOptions *options = [[INSCaptureOptions alloc] init];
         [[INSCameraManager sharedManager].commandManager stopCaptureWithOptions:options completion:^(NSError * _Nullable error, INSCameraVideoInfo * _Nullable videoInfo) {
             NSLog(@"video urls: %@",[INSMediaUtil retrievePanoFileURIsWithURI:videoInfo.uri]);
+            
             if(error != nil){
                 result([FlutterError errorWithCode:@"ERROR"
                                            message:error.description
                                            details:error]);
             }else{
-                result(videoInfo.uri);
+                result(nil);
+                NSString *format = @"http://192.168.42.1%@";
+                NSString *urlString = [NSString stringWithFormat:format, videoInfo.uri];
+                [self->_channel invokeMethod:@"capture_finish" arguments: urlString];
             }
         }];
     }
@@ -168,7 +197,9 @@
     }
 }
 
-- (void) dispose: (FlutterMethodCall*)call withResult: (FlutterResult) result{
+- (void) dispose: (FlutterMethodCall*)call {
+    [self->_timer invalidate];
+    self->_timer = nil;
     [_mediaSession stopRunningWithCompletion:nil];
     [_previewPlayer.renderView destroyRender];
     [EAGLContext setCurrentContext:[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3]];

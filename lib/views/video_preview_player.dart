@@ -15,11 +15,13 @@ class VideoPreviewPlayer extends StatefulWidget {
   final WidgetCallback? loadingBuilder;
   final WidgetCallback? errorBuilder;
   final ProgressCallback? onProgressChanged;
+  final ProgressCallback? onLoadSuccess;
   const VideoPreviewPlayer({
     Key? key,
     this.onViewCreated,
     required this.urls,
-    required this.onProgressChanged,
+    this.onProgressChanged,
+    this.onLoadSuccess,
     this.loadingBuilder,
     this.errorBuilder,
   }) : super(key: key);
@@ -39,6 +41,8 @@ class _VideoPreviewPlayerState extends State<VideoPreviewPlayer> {
     switch (defaultTargetPlatform) {
       case TargetPlatform.iOS:
         return LayoutBuilder(builder: (context, constraints) {
+          creationParams["height"] = constraints.maxHeight;
+          creationParams["width"] = constraints.maxWidth;
           return UiKitView(
             viewType: viewType,
             onPlatformViewCreated: _onPlatformViewCreated,
@@ -100,6 +104,9 @@ class _VideoPreviewPlayerState extends State<VideoPreviewPlayer> {
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'load_success':
+          if (call.arguments is int) {
+            widget.onLoadSuccess?.call(call.arguments);
+          }
           setState(() {
             previewState = PreviewState.success;
           });
@@ -125,10 +132,6 @@ class VideoPreviewPlayerController {
   MethodChannel channel;
   VideoPreviewPlayerController(this.channel);
 
-  Future<void> play() async {
-    return channel.invokeMethod('play');
-  }
-
   Future<void> pause() async {
     return channel.invokeMethod('pause');
   }
@@ -139,10 +142,6 @@ class VideoPreviewPlayerController {
 
   Future<void> isPlaying() async {
     return channel.invokeMethod('isPlaying');
-  }
-
-  Future<void> isLoading() async {
-    return channel.invokeMethod('isLoading');
   }
 
   Future<void> isSeeking() async {

@@ -132,6 +132,9 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
             case "stopRecord":
                 stopRecord(result);
                 break;
+            case "dispose":
+                dispose();
+                break;
             default:
                 result.notImplemented();
         }
@@ -316,9 +319,6 @@ public class FlutterCapturePlayerView implements PlatformView, MethodCallHandler
         return builder;
     }
 
-
-
-    @Override
     public void dispose() {
         InstaCameraManager.getInstance().setPreviewStatusChangedListener(null);
         InstaCameraManager.getInstance().closePreviewStream();

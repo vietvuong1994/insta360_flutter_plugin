@@ -15,9 +15,7 @@
 
 - (INSRenderView *)view;
 
-- (void) dispose: (FlutterMethodCall*)call withResult: (FlutterResult) result;
-
-- (void) init: (FlutterMethodCall*)call withResult: (FlutterResult) result;
+- (void) dispose: (FlutterMethodCall*)call;
 
 - (void) play: (FlutterMethodCall*)call withResult: (FlutterResult) result;
 

@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:insta360_flutter_plugin/insta360_flutter_plugin.dart';
+import 'package:insta360_flutter_plugin/models/gallery_item_model.dart';
 import 'package:insta360_flutter_plugin/models/insta_listener_model.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'camera/preload_camera.dart';
 import 'gallery.dart';
+import 'image_preview.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -32,9 +34,6 @@ class _HomeState extends State<Home> {
         isHasConnect = enabled;
         connected = enabled;
       });
-      if (enabled) {
-        _insta360PluginFlutterPlugin.getGallery();
-      }
     }, onCameraConnectError: (int error) {
       setState(() {
         isHasConnect = false;
@@ -128,14 +127,22 @@ class _HomeState extends State<Home> {
                   : null,
               child: const Text('Preview'),
             ),
-            ElevatedButton(
-              onPressed: connected
-                  ? () {
-                      navToGallery(context);
-                    }
-                  : null,
-              child: const Text('Gallery'),
-            ),
+    // ElevatedButton(
+    // onPressed: connected
+    // ? () {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context){
+    //       GalleryItemModel data = GalleryItemModel(urls: ["http://192.168.42.1/DCIM/Camera01/IMG_20221117_173956_00_129.insp"]);
+    //       data.isVideo = false;
+    //       return ImagePreview(data: data);
+    //     }),
+    //   );
+    // }
+    //     : null,
+    // child: const Text('Image preview'),
+    // ),
+
           ],
         ),
       ),

@@ -3,6 +3,8 @@
 #import <INSCameraSDK/INSCameraSDK.h>
 #import "GCDTimer.h"
 #import "CapturePlayer.h"
+#import "ImagePlayer.h"
+#import "VideoPlayer.h"
 
 @interface Insta360FlutterPlugin()
 
@@ -19,7 +21,12 @@ FlutterMethodChannel* channel;
             binaryMessenger:[registrar messenger]];
     
     CapturePlayerFactory* capturePlayerFactory = [[CapturePlayerFactory alloc] initWithMessenger:registrar.messenger];
+    ImagePlayerFactory* imagePlayerFactory = [[ImagePlayerFactory alloc] initWithMessenger:registrar.messenger];
+    VideoPlayerFactory* videoPlayerFactory = [[VideoPlayerFactory alloc] initWithMessenger:registrar.messenger];
     [registrar registerViewFactory:capturePlayerFactory withId:@"com.meey.insta360/capture_player"];
+    [registrar registerViewFactory:imagePlayerFactory withId:@"com.meey.insta360/image_preview_player"];
+    [registrar registerViewFactory:videoPlayerFactory withId:@"com.meey.insta360/video_preview_player"];
+    
     
   Insta360FlutterPlugin* instance = [[Insta360FlutterPlugin alloc] init];
   [registrar addMethodCallDelegate:instance channel:channel];

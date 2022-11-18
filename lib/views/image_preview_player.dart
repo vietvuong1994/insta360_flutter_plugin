@@ -36,6 +36,9 @@ class _ImagePreviewPlayerState extends State<ImagePreviewPlayer> {
     switch (defaultTargetPlatform) {
       case TargetPlatform.iOS:
         return LayoutBuilder(builder: (context, constraints) {
+          creationParams["height"] = constraints.maxHeight;
+          creationParams["width"] = constraints.maxWidth;
+
           return UiKitView(
             viewType: viewType,
             onPlatformViewCreated: _onPlatformViewCreated,
@@ -117,7 +120,7 @@ class ImagePreviewPlayerController {
   MethodChannel channel;
   ImagePreviewPlayerController(this.channel);
 
-  Future<void> setUrls(List<String> urls) async {
-    return channel.invokeMethod('setUrls', urls.join(","));
+  Future<void> dispose() async {
+    return channel.invokeMethod('dispose');
   }
 }

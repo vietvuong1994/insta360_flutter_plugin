@@ -19,6 +19,7 @@ class _VideoPreviewState extends State<VideoPreview> {
   final BehaviorSubject<int> _subjectProgress = BehaviorSubject<int>.seeded(0);
   late VideoPreviewPlayerController _controller;
   bool isPlaying = true;
+  Duration duration = Duration.zero;
 
   stop() {
     _controller.pause();
@@ -91,6 +92,12 @@ class _VideoPreviewState extends State<VideoPreview> {
                     onProgressChanged: (int progress) {
                       _subjectProgress.sink.add(progress);
                     },
+                    onLoadSuccess: (int durationMs) {
+                      duration = Duration(milliseconds: durationMs);
+                      setState(() {
+
+                      });
+                    },
                   ),
                   Positioned(
                     bottom: 56,
@@ -99,12 +106,11 @@ class _VideoPreviewState extends State<VideoPreview> {
                     child: StreamBuilder<int>(
                       stream: _subjectProgress.stream,
                       builder: (context, snapshot) {
-                        final total = Duration(milliseconds: widget.data.duration!);
                         final progress = Duration(milliseconds: snapshot.data ?? 0);
                         return ProgressBar(
                           progress: progress,
                           buffered: Duration.zero,
-                          total: total,
+                          total: duration,
                           timeLabelTextStyle: const TextStyle(color: Colors.white),
                           progressBarColor: Colors.red,
                           baseBarColor: Colors.white.withOpacity(0.24),

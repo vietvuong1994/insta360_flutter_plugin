@@ -111,6 +111,10 @@ class CapturePlayerController {
     return channel.invokeMethod('play');
   }
 
+  Future<void> dispose() async {
+    return channel.invokeMethod('dispose');
+  }
+
   Future<void> stop() async {
     return channel.invokeMethod('stop');
   }

@@ -1,6 +1,12 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:insta360_flutter_plugin/common/enum.dart';
+import 'package:insta360_flutter_plugin/models/gallery_item_model.dart';
 import 'package:insta360_flutter_plugin/views/capture_player.dart';
+import 'package:insta360_flutter_plugin_example/common/enums.dart';
+
+import '../image_preview.dart';
+import '../video_preview.dart';
 
 class Camera extends StatefulWidget {
   const Camera({Key? key}) : super(key: key);
@@ -15,6 +21,13 @@ class _CameraState extends State<Camera> {
   bool isLoading = false;
   bool isRecording = false;
   String recordingTime = "00:00:00";
+  CameraType cameraType = CameraType.capture;
+
+  @override
+  dispose(){
+    _controller.dispose();
+    super.dispose();
+  }
 
   onCapturePlayerCreated(CapturePlayerController controller) {
     _controller = controller;
@@ -71,6 +84,122 @@ class _CameraState extends State<Camera> {
     _controller.stopRecord();
   }
 
+  void changeCameraType(CameraType type) {
+    if (cameraType != type) {
+      cameraType = type;
+      setState(() {});
+    }
+  }
+
+  Widget changeCameraButton(CameraType type) {
+    return ElevatedButton(
+      onPressed: () {
+        changeCameraType(type);
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+        elevation: MaterialStateProperty.all<double>(0),
+        splashFactory: NoSplash.splashFactory,
+        shape: cameraType == type
+            ? MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),
+                  side: const BorderSide(color: Colors.white),
+                ),
+              )
+            : null,
+      ),
+      child: Text(
+        type.title.toUpperCase(),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: cameraType == type ? 16 : 14,
+          fontWeight: FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
+  Widget captureButton() {
+    return InkWell(
+      onTap: capture,
+      child: Container(
+        height: 80,
+        width: 80,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(99),
+          color: Colors.white.withOpacity(0.3),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(99),
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget recordButton() {
+    return InkWell(
+      onTap: isRecording ? stopRecord : startRecord,
+      child: Container(
+        height: 80,
+        width: 80,
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(99),
+          color: Colors.white.withOpacity(0.3),
+        ),
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(99),
+            color: Colors.white,
+          ),
+          child: AnimatedContainer(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(isRecording ? 2 : 99),
+              color: isRecording ? Colors.black : Colors.red,
+            ),
+            duration: const Duration(milliseconds: 500),
+          ),
+        ),
+      ),
+    );
+  }
+
+  onCaptureFinish(List<String> urls) {
+    print("=====Capture finish: ${urls.join(",")}");
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.success,
+      title: 'Thành công',
+      desc:  "${cameraType.title} đã được lưu trữ trên thiết bị Insta!",
+      btnOkText: "Xem",
+      btnOkOnPress: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context){
+            GalleryItemModel data = GalleryItemModel(urls: urls);
+            if(cameraType == CameraType.record ){
+              data.isVideo = true;
+              return VideoPreview(data: data);
+            }else{
+              data.isVideo = false;
+              return ImagePreview(data: data);
+            }
+          }),
+        );
+      },
+    ).show();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -80,8 +209,20 @@ class _CameraState extends State<Camera> {
         return Future.value(false);
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: (cameraType == CameraType.record) ?  AnimatedContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                color: isRecording ? Colors.red : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              duration: const Duration(milliseconds: 300),
+              child: Text(recordingTime),
+          ) : null,
           leading: IconButton(
             onPressed: () {
               Navigator.of(context).maybePop();
@@ -118,82 +259,32 @@ class _CameraState extends State<Camera> {
                         });
                       }
                     },
-                    onCaptureFinish: (List<String> images) {
-                      print("=====Capture finish: ${images.join(",")}");
-                    },
+                    onCaptureFinish: onCaptureFinish,
                   ),
                 ),
               ),
               Positioned(
-                top: 0,
+                bottom: 120 + MediaQuery.of(context).padding.bottom,
                 left: 0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton(
-                      onPressed: switchNormalMode,
-                      child: const Text("Normal"),
+                    changeCameraButton(CameraType.capture),
+                    const SizedBox(
+                      width: 12,
                     ),
-                    ElevatedButton(
-                      onPressed: switchFisheyeMode,
-                      child: const Text("Fisheye"),
-                    ),
-                    ElevatedButton(
-                      onPressed: switchPerspectiveMode,
-                      child: const Text("Perspective"),
-                    ),
-                    ElevatedButton(
-                      onPressed: switchPlaneMode,
-                      child: const Text("Plane"),
-                    ),
-                    if (!isRecording)
-                      ElevatedButton(
-                        onPressed: capture,
-                        child: const Text("Capture"),
-                      ),
-                    ElevatedButton(
-                      onPressed: isRecording ? stopRecord : startRecord,
-                      child: Text(isRecording ? "Stop Record" : "Start Record"),
-                    ),
-                    // Container(
-                    //     width: 100,
-                    //     height: 100,
-                    //     child: ThumbnailView(
-                    //       onViewCreated: (ThumbnailViewController controller) {
-                    //         controller.setUrls(["http://192.168.42.1:80/DCIM/Camera01/IMG_20221109_111629_00_080.insp"]);
-                    //       },
-                    //     )),
-                    if (isRecording)
-                      Text(
-                        "Time record: $recordingTime",
-                        style: TextStyle(color: Colors.white),
-                      )
+                    changeCameraButton(CameraType.record),
                   ],
                 ),
               ),
+
               Positioned(
                 bottom: 20 + MediaQuery.of(context).padding.bottom,
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(99),
-                      color: isPlaying ? Colors.red : Colors.green,
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        isPlaying ? stop() : play();
-                      },
-                      icon: Icon(
-                        isPlaying ? Icons.stop : Icons.play_arrow,
-                        size: 50,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  child: cameraType == CameraType.record ? recordButton() : captureButton(),
                 ),
               ),
               if (isLoading)

@@ -14,9 +14,16 @@ class ImagePreview extends StatefulWidget {
 }
 
 class _ImagePreviewState extends State<ImagePreview> {
+  late ImagePreviewPlayerController _controller;
   download() async {
     String urlDownload = widget.data.urls!.first;
     await DownloadService.download(urlDownload);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -46,7 +53,9 @@ class _ImagePreviewState extends State<ImagePreview> {
             ? Stack(
                 children: [
                   ImagePreviewPlayer(
-                      onViewCreated: (ImagePreviewPlayerController controller) {},
+                      onViewCreated: (ImagePreviewPlayerController controller) {
+                        _controller = controller;
+                      },
                       urls: widget.data.urls!,
                       loadingBuilder: (BuildContext context) {
                         return Container(

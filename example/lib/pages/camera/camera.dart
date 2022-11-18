@@ -24,7 +24,7 @@ class _CameraState extends State<Camera> {
   CameraType cameraType = CameraType.capture;
 
   @override
-  dispose(){
+  dispose() {
     _controller.dispose();
     super.dispose();
   }
@@ -86,6 +86,9 @@ class _CameraState extends State<Camera> {
 
   void changeCameraType(CameraType type) {
     if (cameraType != type) {
+      if (cameraType == CameraType.record) {
+        stopRecord();
+      }
       cameraType = type;
       setState(() {});
     }
@@ -179,17 +182,17 @@ class _CameraState extends State<Camera> {
       animType: AnimType.scale,
       dialogType: DialogType.success,
       title: 'Thành công',
-      desc:  "${cameraType.title} đã được lưu trữ trên thiết bị Insta!",
+      desc: "${cameraType.title} đã được lưu trữ trên thiết bị Insta!",
       btnOkText: "Xem",
       btnOkOnPress: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context){
+          MaterialPageRoute(builder: (context) {
             GalleryItemModel data = GalleryItemModel(urls: urls);
-            if(cameraType == CameraType.record ){
+            if (cameraType == CameraType.record) {
               data.isVideo = true;
               return VideoPreview(data: data);
-            }else{
+            } else {
               data.isVideo = false;
               return ImagePreview(data: data);
             }
@@ -198,7 +201,6 @@ class _CameraState extends State<Camera> {
       },
     ).show();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -214,15 +216,17 @@ class _CameraState extends State<Camera> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
-          title: (cameraType == CameraType.record) ?  AnimatedContainer(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(
-                color: isRecording ? Colors.red : Colors.transparent,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              duration: const Duration(milliseconds: 300),
-              child: Text(recordingTime),
-          ) : null,
+          title: (cameraType == CameraType.record)
+              ? AnimatedContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    color: isRecording ? Colors.red : Colors.transparent,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(recordingTime),
+                )
+              : null,
           leading: IconButton(
             onPressed: () {
               Navigator.of(context).maybePop();
@@ -278,7 +282,6 @@ class _CameraState extends State<Camera> {
                   ],
                 ),
               ),
-
               Positioned(
                 bottom: 20 + MediaQuery.of(context).padding.bottom,
                 left: 0,

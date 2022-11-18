@@ -57,7 +57,7 @@ public class FlutterVideoPreviewPlayerView implements PlatformView, MethodCallHa
 
             @Override
             public void onLoadingFinish() {
-                methodChannel.invokeMethod("load_success", "success");
+                methodChannel.invokeMethod("load_success", mVideoPlayerView.getVideoTotalDuration());
             }
 
             @Override
@@ -74,9 +74,6 @@ public class FlutterVideoPreviewPlayerView implements PlatformView, MethodCallHa
         mVideoPlayerView.setVideoStatusListener(new VideoStatusListener() {
             @Override
             public void onProgressChanged(long position, long length) {
-//                Map<String, Long> map = new HashMap<>();
-//                map.put("total", length);
-//                map.put("progress", position);
                 methodChannel.invokeMethod("progress_change", position);
             }
 

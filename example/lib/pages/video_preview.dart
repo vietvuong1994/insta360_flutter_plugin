@@ -41,6 +41,12 @@ class _VideoPreviewState extends State<VideoPreview> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -100,7 +106,7 @@ class _VideoPreviewState extends State<VideoPreview> {
                     },
                   ),
                   Positioned(
-                    bottom: 56,
+                    bottom: 56 + MediaQuery.of(context).padding.bottom,
                     left: 16,
                     right: 16,
                     child: StreamBuilder<int>(
@@ -129,7 +135,7 @@ class _VideoPreviewState extends State<VideoPreview> {
                     ),
                   ),
                   Positioned(
-                    bottom: 16,
+                    bottom: 16 + MediaQuery.of(context).padding.bottom,
                     left: 16,
                     right: 16,
                     child: Center(

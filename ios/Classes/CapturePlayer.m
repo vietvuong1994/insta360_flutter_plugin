@@ -261,7 +261,7 @@
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
         // This method is invoked on the UI thread.
         if ([@"dispose" isEqualToString:call.method]) {
-            [weakSelf dispose:call withResult:result];
+            [weakSelf dispose:call];
         } else if ([@"play" isEqualToString:call.method]) {
             [weakSelf play:call withResult:result];
         } else if ([@"stop" isEqualToString:call.method]) {

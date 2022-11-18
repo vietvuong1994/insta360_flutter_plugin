@@ -101,6 +101,7 @@
         }
     }
     [_renderView playImage:_image offset:offset];
+    [_channel invokeMethod:@"load_success" arguments:nil];
 }
 
 

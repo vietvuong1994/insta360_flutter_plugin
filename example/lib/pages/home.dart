@@ -8,6 +8,7 @@ import 'package:wifi_scan/wifi_scan.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 import 'camera/preload_camera.dart';
 import 'gallery.dart';
+import 'image_jpg_preview.dart';
 import 'image_preview.dart';
 
 class Home extends StatefulWidget {
@@ -43,9 +44,8 @@ class _HomeState extends State<Home> {
     _insta360PluginFlutterPlugin.listener(callbacks);
   }
 
-  connectWifi()async {
+  connectWifi() async {
     _startScan();
-
   }
 
   List<WiFiAccessPoint> accessPoints = [];
@@ -127,22 +127,32 @@ class _HomeState extends State<Home> {
                   : null,
               child: const Text('Preview'),
             ),
-    // ElevatedButton(
-    // onPressed: connected
-    // ? () {
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(builder: (context){
-    //       GalleryItemModel data = GalleryItemModel(urls: ["http://192.168.42.1/DCIM/Camera01/IMG_20221117_173956_00_129.insp"]);
-    //       data.isVideo = false;
-    //       return ImagePreview(data: data);
-    //     }),
-    //   );
-    // }
-    //     : null,
-    // child: const Text('Image preview'),
-    // ),
-
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return const ImageJpgPreview();
+                  }),
+                );
+              },
+              child: const Text('Preview JPG'),
+            ),
+            // ElevatedButton(
+            // onPressed: connected
+            // ? () {
+            //   Navigator.push(
+            //     context,
+            //     MaterialPageRoute(builder: (context){
+            //       GalleryItemModel data = GalleryItemModel(urls: ["http://192.168.42.1/DCIM/Camera01/IMG_20221117_173956_00_129.insp"]);
+            //       data.isVideo = false;
+            //       return ImagePreview(data: data);
+            //     }),
+            //   );
+            // }
+            //     : null,
+            // child: const Text('Image preview'),
+            // ),
           ],
         ),
       ),

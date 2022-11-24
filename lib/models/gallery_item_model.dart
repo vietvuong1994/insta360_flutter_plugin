@@ -4,7 +4,7 @@ class GalleryItemModel {
   bool? isVideo;
   int? duration;
 
-  GalleryItemModel({this.urls, this.deleteUrls, this.isVideo, this.duration});
+  GalleryItemModel({this.urls, this.deleteUrls, this.isVideo = false, this.duration});
 
   GalleryItemModel.fromJson(Map<String, dynamic> json) {
     urls = json['urls'].cast<String>();

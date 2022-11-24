@@ -132,6 +132,10 @@ class VideoPreviewPlayerController {
   MethodChannel channel;
   VideoPreviewPlayerController(this.channel);
 
+  Future<void> dispose() async {
+    return channel.invokeMethod('dispose');
+  }
+
   Future<void> pause() async {
     return channel.invokeMethod('pause');
   }

@@ -48,6 +48,8 @@
 
 @property (strong, nonatomic) NSTimer *timer;
 
+@property NSInteger durationMs;
+
 
 @end
 
@@ -78,20 +80,21 @@
         CGFloat width = [widthString floatValue];
         CGFloat height = [heightString floatValue];
         CGRect aRect = CGRectMake(0, 0, width, height);
-        
+        self->_videoUrls = [[NSMutableArray alloc] init];
         for (NSString *string in urlStrings) {
             NSURL *url = [NSURL URLWithString:string];
             [self->_videoUrls addObject:url];
         }
         
-        self.renderType = INSRenderTypeSphericalRender;
+        self.renderType = INSRenderTypeSphericalPanoRender;
         
         _renderView = [[INSRenderView alloc] initWithFrame: aRect renderType: self.renderType];
         [self setupPreviewerWithRenderView:_renderView];
-        [self playVideoWithURLs:self->_videoUrls];
         
         NSString* channelName = [NSString stringWithFormat:@"com.meey.insta360/video_preview_player_%lld", viewId];
         _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
+        
+        [self playVideoWithURLs: self->_videoUrls];
     }
     
     __weak typeof(self) weakSelf = self;
@@ -140,14 +143,14 @@
     
     // (The actual framerate of the video) / (Expected framerate for playback)
     CGFloat factor = framerate / 30;
-    NSInteger durationMs = duration * 1000;
-    INSTimeScale *timeScale = [[INSTimeScale alloc] initWithFactor:factor startTimeMs:0 endTimeMs:durationMs];
+    self->_durationMs = duration * 1000;
+    INSTimeScale *timeScale = [[INSTimeScale alloc] initWithFactor:factor startTimeMs:0 endTimeMs:self->_durationMs];
     
     INSFileClip *videoClip =
     [[INSFileClip alloc] initWithURLs:urls
                           startTimeMs:0
-                            endTimeMs:durationMs
-                   totalSrcDurationMs:durationMs
+                            endTimeMs:self->_durationMs
+                   totalSrcDurationMs:self->_durationMs
                            timeScales:@[timeScale]
                              hasAudio:YES
                         mediaFileSize:mediaFileSize];
@@ -157,11 +160,9 @@
     // you can set the playback begin time. default is 0.
     [_previewer prepareAsync:0];
     [_renderView playVideoWithOffset:offset];
-   
+    NSNumber *durationData = @(self->_durationMs);
+    [self->_channel invokeMethod:@"load_success" arguments: durationData];
     [self play];
-    
-    NSNumber *durationData = [NSNumber numberWithInt:durationMs];
-    [_channel invokeMethod:@"load_success" arguments: durationData];
 }
 
 
@@ -191,7 +192,11 @@
     int currentPosInt = (int)currentPos;
     NSNumber *currentPosNum = [NSNumber numberWithInt:currentPosInt];
     [self->_channel invokeMethod:@"progress_change" arguments: currentPosNum];
-    NSLog(@"%i  milisecond", currentPosInt);
+    if((self->_durationMs - currentPosInt) <= 100){
+        [self->_timer invalidate];
+        self->_timer = nil;
+        [self seek: 0]; //play loop
+    }
 }
 
 - (void)isPlaying: (FlutterMethodCall*)call withResult: (FlutterResult) result{
@@ -206,8 +211,13 @@
 
 - (void)seekTo: (FlutterMethodCall*)call withResult: (FlutterResult) result{
     double position = [[call arguments] doubleValue];
-    [_previewer seek:position];
+    [self seek: position];
     result(nil);
+}
+
+- (void)seek: (double)position {
+    [_previewer seek:position];
+    [self play];
 }
 
 - (INSRenderView *)view {

@@ -5,7 +5,8 @@ import 'package:panorama/panorama.dart';
 import '../jumping_dots_progress_indicator.dart';
 
 class ImageJpgPreview extends StatefulWidget {
-  const ImageJpgPreview({Key? key}) : super(key: key);
+  final String url;
+  const ImageJpgPreview({Key? key, required this.url}) : super(key: key);
 
   @override
   State<ImageJpgPreview> createState() => _ImageJpgPreviewState();
@@ -28,9 +29,8 @@ class _ImageJpgPreviewState extends State<ImageJpgPreview> {
         ),
       ),
       body: CachedNetworkImage(
-        imageUrl: 'https://github.com/zesage/panorama/blob/master/example/assets/panorama.jpg?raw=true',
+        imageUrl: widget.url,
         fit: BoxFit.cover,
-        // cacheManager: CustomCacheManager.instance,
         placeholder: (context, url) => Container(
           color: Colors.black,
           alignment: Alignment.center,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:insta360_flutter_plugin_example/pages/home.dart';
+import 'package:insta360_flutter_plugin_example/pages/home/home.dart';
 import 'package:insta360_flutter_plugin_example/services/download_service.dart';
 import 'jumping_dots_progress_indicator.dart';
 

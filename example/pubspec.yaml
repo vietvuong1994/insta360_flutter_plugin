@@ -29,7 +29,18 @@ dependencies:
   awesome_dialog: ^3.0.2
   panorama: ^0.4.1
   cached_network_image: ^3.2.2
-#  panorama:
+  shared_preferences: ^2.0.15
+  dio: ^4.0.6
+  logger:
+  flutter_archive: ^5.0.0
+  platform_device_id: ^1.0.1
+  visibility_detector: ^0.3.3
+  meey_camera_360:
+    git:
+      url: https://gitlab.com/meeylandv3/meey360-spherecamera.git
+      ref: master
+
+  #  panorama:
 #    git:
 #      url: https://github.com/zesage/panorama.git
 #      ref: master # branch name

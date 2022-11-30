@@ -106,6 +106,7 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
   navToCaptureCamera(BuildContext context) async {
     String? result = await MeeyCamera360.startCapture(context);
     if (result == "DONE") {
+      EasyLoading.show();
       final external = await getExternalStorageDirectory();
       var dataDir = await _localPath("origin");
       // archive origin folder to zip file
@@ -114,6 +115,7 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
       debugPrint("encode success");
       // upload zip file to server and get upload turn ìd
       UploadResponse? res = await ApiService.uploadImageCompressed(zipFile);
+      EasyLoading.dismiss();
       if (res != null) {
         String? id = res.data?.name;
         EasyLoading.showSuccess('Upload thành công!');
@@ -161,8 +163,9 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
                             },
                             child: Container(
                               width: double.infinity,
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: listAllImage[index].uploaded ? null : Colors.black.withOpacity(0.7),
+                                color: Colors.black.withOpacity(0.7),
                                 borderRadius: BorderRadius.circular(10),
                                 image: listAllImage[index].uploaded
                                     ? DecorationImage(

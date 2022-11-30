@@ -188,7 +188,7 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
                           return Container(
                             height: 1,
                             color: Colors.black.withOpacity(0.7),
-                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            margin: const EdgeInsets.symmetric(vertical: 8),
                           );
                         },
                         itemCount: listAllImage.length,

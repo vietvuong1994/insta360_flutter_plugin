@@ -42,6 +42,7 @@ class _ImageJpgPreviewState extends State<ImageJpgPreview> {
           ),
         ),
         imageBuilder: (context, imageProvider) => Panorama(
+
           child: Image(
             image: imageProvider,
           ),

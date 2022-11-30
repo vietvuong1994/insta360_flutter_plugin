@@ -39,8 +39,7 @@ dependencies:
     git:
       url: https://gitlab.com/meeylandv3/meey360-spherecamera.git
       ref: master
-
-  #  panorama:
+#  panorama:
 #    git:
 #      url: https://github.com/zesage/panorama.git
 #      ref: master # branch name

@@ -110,7 +110,7 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
       var dataDir = await _localPath("origin");
       // archive origin folder to zip file
       final zipFile = File("${external!.path}/images.zip");
-      ZipFile.createFromDirectory(sourceDir: Directory(dataDir), zipFile: zipFile, recurseSubDirs: true);
+      await ZipFile.createFromDirectory(sourceDir: Directory(dataDir), zipFile: zipFile, recurseSubDirs: true);
       debugPrint("encode success");
       // upload zip file to server and get upload turn ìd
       UploadResponse? res = await ApiService.uploadImageCompressed(zipFile);

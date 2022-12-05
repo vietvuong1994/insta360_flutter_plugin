@@ -814,8 +814,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.3"
+  wifi_iot:
+    dependency: "direct main"
+    description:
+      name: wifi_iot
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.18"
   wifi_scan:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: wifi_scan
       url: "https://pub.dartlang.org"

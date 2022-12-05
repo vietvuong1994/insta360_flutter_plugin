@@ -29,6 +29,7 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
   Timer? timer;
   CancelToken? cancelToken;
   bool isLoading = true;
+  bool isUpload = false;
   bool initiated = false;
 
   @override
@@ -105,6 +106,9 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
 
   navToCaptureCamera(BuildContext context) async {
     String? result = await MeeyCamera360.startCapture(context);
+    setState(() {
+      isUpload = true;
+    });
     if (result == "DONE") {
       final external = await getExternalStorageDirectory();
       var dataDir = await _localPath("origin");
@@ -119,6 +123,9 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
         EasyLoading.showSuccess('Upload thành công!');
       }
     }
+    setState(() {
+      isUpload = false;
+    });
   }
 
   @override
@@ -137,6 +144,7 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
       },
       child: Stack(
         children: [
+
           SizedBox(
             height: double.infinity,
             width: double.infinity,
@@ -208,12 +216,25 @@ class _CameraTabState extends State<CameraTab> with AutomaticKeepAliveClientMixi
                         ],
                       ),
           ),
+
           Positioned(
             bottom: 16,
             right: 16,
             child: FloatingActionButton(
               onPressed: () => navToCaptureCamera(context),
               child: const Icon(Icons.add),
+            ),
+          ),
+          if(isUpload)
+          Positioned(
+            top: 16,
+            left: 0,
+            right: 0,
+            child: JumpingDotsProgressIndicator(
+              fontSize: 20,
+              color: const Color(0xFF4F86FF),
+              dotSpacing: 10,
+              milliseconds: 300,
             ),
           ),
         ],

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:insta360_flutter_plugin/insta360_flutter_plugin.dart';
 import 'package:insta360_flutter_plugin/models/insta_listener_model.dart';
 import 'package:insta360_flutter_plugin_example/pages/camera/preload_camera.dart';
+import 'package:wifi_iot/wifi_iot.dart';
+import 'package:wifi_scan/wifi_scan.dart';
 
 class InstaTab extends StatefulWidget {
   const InstaTab({Key? key}) : super(key: key);
@@ -16,6 +20,7 @@ class _InstaTabState extends State<InstaTab> with AutomaticKeepAliveClientMixin<
 
   Future<void> initPlatformState() async {
     InstaListenerModel callbacks = InstaListenerModel(onCameraStatusChanged: (bool enabled) {
+      print('connected: ---------------- '+ enabled.toString() );
       setState(() {
         connected = enabled;
       });
@@ -31,10 +36,39 @@ class _InstaTabState extends State<InstaTab> with AutomaticKeepAliveClientMixin<
     _startScan();
   }
 
-  void _startScan() async {
-    _insta360PluginFlutterPlugin.connectByWifi();
-  }
+  // void _startScan() async {
+  //   _insta360PluginFlutterPlugin.connectByWifi();
+  // }
 
+  List<WiFiAccessPoint> accessPoints = [];
+  StreamSubscription<List<WiFiAccessPoint>>? subscription;
+  bool isHasConnect = false;
+
+  void _startScan() async {
+    // _insta360PluginFlutterPlugin.connectByWifi();
+    // return;
+    final can = await WiFiScan.instance.canStartScan(askPermissions: true);
+    switch (can) {
+      case CanStartScan.yes:
+        final isScanning = await WiFiScan.instance.startScan();
+        subscription = WiFiScan.instance.onScannedResultsAvailable.listen((results) {
+          for (var element in results) {
+            print('vao 1111111111111111111');
+            if (element.ssid.contains('ONE X2') && !isHasConnect) {
+              print(element.ssid);
+              print(element.bssid);
+              print('----------');
+              isHasConnect = true;
+              WiFiForIoTPlugin.connect(element.ssid, bssid: element.bssid, security: NetworkSecurity.WPA, password: '88888888').then((value) {
+                print('vao rrrrrrrrrrrrrrr');
+                _insta360PluginFlutterPlugin.connectByWifi();
+              });
+            }
+          }
+        });
+        break;
+    }
+  }
   disconnectWifi() {
     _insta360PluginFlutterPlugin.closeCamera();
   }
@@ -70,7 +104,7 @@ class _InstaTabState extends State<InstaTab> with AutomaticKeepAliveClientMixin<
               child: const Text('Connect Wifi'),
             ),
           ElevatedButton(
-            onPressed: connected
+            onPressed: !connected
                 ? () {
                     navToPreview(context);
                   }
